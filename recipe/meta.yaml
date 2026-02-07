@@ -13,13 +13,12 @@ build:
   number: 0
   skip: true  # [py<37]
   script: {{ PYTHON }} -m pip install . --no-deps -vv --no-build-isolation
-  ignore_run_exports:
-    - numpy
-    - python
+
 requirements:
   build:
-    # - {{ stdlib('c') }}
+    - {{ stdlib('c') }}
     - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
   host:
     - pip
     - python
