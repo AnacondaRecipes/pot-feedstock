@@ -28,6 +28,7 @@ requirements:
     - numpy >=2.0.0  # [py>=39]
   run:
     - python
+    - _openmp_mutex  # [linux]
     # Pinnings through run exports
     - numpy
     - scipy >=1.6
