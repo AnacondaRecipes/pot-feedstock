@@ -28,6 +28,7 @@ requirements:
     - numpy >=2.0.0  # [py>=39]
   run:
     - python
+    - llvm-openmp  # [osx]
     - _openmp_mutex  # [linux]
     # Pinnings through run exports
     - numpy
