@@ -1,49 +1,63 @@
 {% set name = "pot" %}
 {% set version = "0.9.6.post1" %}
-{% set sha256 = "9b6cc14a8daecfe1268268168cf46548f9130976b22b24a9e8ec62a734be6c43" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  fn: {{ name }}-{{ version }}.tar.gz
-  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: {{ sha256 }}
+  url: https://github.com/PythonOT/{{ name|upper }}/archive/refs/tags/{{ version }}.tar.gz
+  sha256: 71bfd421c50816fecea6c7297aece19c7d10781f137c5e031868e71d64d304f6
 
 build:
   number: 0
-  skip: true  # [python_impl == 'pypy']
-  script:
-    - {{ PYTHON }} -m pip install . -vv
+  skip: true  # [py<37]
+  script: {{ PYTHON }} -m pip install . --no-deps -vv --no-build-isolation
 
 requirements:
   build:
-    - python                                 # [build_platform != target_platform]
-    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
-    - cython                                 # [build_platform != target_platform]
-    - numpy                                  # [build_platform != target_platform]
+    - {{ stdlib('c') }}
     - {{ compiler('c') }}
-    - {{ stdlib("c") }}
     - {{ compiler('cxx') }}
   host:
-    - python
     - pip
-    - setuptools
+    - python
+    - setuptools >=42
+    - wheel
     - cython >=0.23
-    - numpy
+    - numpy >=2.0.0  # [py>=39]
   run:
     - python
+    - llvm-openmp  # [osx]
+    - _openmp_mutex  # [linux]
+    # Pinnings through run exports
     - numpy
-    - scipy >=1.0
-    - matplotlib-base >=1.5
+    - scipy >=1.6
+
+# E   ModuleNotFoundError: No module named 'openmp_helpers'
+{% set ignore_tests = "--ignore=test/test_helpers.py" %}
+# >       index[0] = generator.choice(len_p, size=1, p=nx.to_numpy(p))
+# E       ValueError: setting an array element with a sequence.
+{% set deselect_tests = "--deselect=test/gromov/test_estimators.py::test_pointwise_gromov" %}
+# >               M[-1, -1] = 1 / s
+# E               ValueError: setting an array element with a sequence.
+{% set deselect_tests = deselect_tests + " --deselect=test/test_regpath.py::test_fully_relaxed_path" %}
+{% set deselect_tests = deselect_tests + " --deselect=test/test_regpath.py::test_semi_relaxed_path" %}
 
 test:
+  source_files:
+    - test
   imports:
     - ot
+  requires:
+    - pip
+    - pytest
+  commands:
+    - pip check
+    - pytest -v test {{ ignore_tests }} {{ deselect_tests }}
 
 about:
-  home: http://github.com/PythonOT/POT
+  home: https://github.com/PythonOT/POT
   license: MIT
   license_family: MIT
   license_file: LICENSE
@@ -52,7 +66,7 @@ about:
     This open source Python library provide several solvers for optimization
     problems related to Optimal Transport for signal, image processing and
     machine learning.
-  doc_url: https://pythonot.github.io/
+  doc_url: https://pythonot.github.io
   dev_url: https://github.com/PythonOT/POT
 
 extra:
