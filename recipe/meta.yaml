@@ -52,6 +52,7 @@ test:
   requires:
     - pip
     - pytest
+    - scipy <1.17
   commands:
     - pip check
     - pytest -v test {{ ignore_tests }} {{ deselect_tests }}
