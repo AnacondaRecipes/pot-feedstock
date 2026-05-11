@@ -10,7 +10,7 @@ source:
   sha256: 71bfd421c50816fecea6c7297aece19c7d10781f137c5e031868e71d64d304f6
 
 build:
-  number: 0
+  number: 1
   skip: true  # [py<37]
   script: {{ PYTHON }} -m pip install . --no-deps -vv --no-build-isolation
 
@@ -26,10 +26,14 @@ requirements:
     - wheel
     - cython >=0.23
     - numpy >=2.0.0  # [py>=39]
+    - llvm-openmp  # [osx or (win and arm64)]
+    - libgomp  # [linux]
+    - vcomp14  # [(win and x86_64)]
   run:
     - python
-    - llvm-openmp  # [osx]
-    - _openmp_mutex  # [linux]
+    - llvm-openmp  # [osx or (win and arm64)]
+    - libgomp  # [linux]
+    - vcomp14  # [(win and x86_64)]
     # Pinnings through run exports
     - numpy
     - scipy >=1.6
