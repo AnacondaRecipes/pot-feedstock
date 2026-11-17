@@ -65,7 +65,8 @@ test:
   requires:
     - pip
     - pytest
-    - scipy <1.17
+    # scipy >=1.17 fails tests on linux/osx; win-arm64 only ships >=1.17.1
+    - scipy <1.17  # [not (win and arm64)]
   commands:
     - pip check
     - pytest -vv test {{ ignore_tests }} {{ deselect_tests }}
