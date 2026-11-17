@@ -1,16 +1,16 @@
 {% set name = "pot" %}
-{% set version = "0.9.6.post1" %}
+{% set version = "0.9.7.post1" %}
 
 package:
-  name: {{ name|lower }}
+  name: {{ name }}
   version: {{ version }}
 
 source:
   url: https://github.com/PythonOT/{{ name|upper }}/archive/refs/tags/{{ version }}.tar.gz
-  sha256: 71bfd421c50816fecea6c7297aece19c7d10781f137c5e031868e71d64d304f6
+  sha256: f4fbd61417ad75bd695525e2d6e435e1a74656f0e9243dd2b9b01e87a3eeff74
 
 build:
-  number: 1
+  number: 0
   skip: true  # [py<37]
   script: {{ PYTHON }} -m pip install . --no-deps -vv --no-build-isolation
 
@@ -23,18 +23,17 @@ requirements:
     - pip
     - python
     - setuptools >=42
-    - wheel
     - cython >=0.23
-    - numpy >=2.0.0  # [py>=39]
-    - llvm-openmp  # [osx or (win and arm64)]
-    - libgomp  # [linux]
-    - vcomp14  # [(win and x86_64)]
+    - numpy {{ numpy }}  # [py>=39]
+    - llvm-openmp  # [osx or (win and arm64)] analint: host_section_needs_exact_pinnings  # exact pin arrives via run_exports
+    - libgomp  # [linux] analint: host_section_needs_exact_pinnings  # exact pin arrives via run_exports
+    - vcomp14 {{ vcomp14 }}  # [win and x86_64]
   run:
     - python
     - llvm-openmp  # [osx or (win and arm64)]
     - libgomp  # [linux]
-    - vcomp14  # [(win and x86_64)]
-    # Pinnings through run exports
+    - vcomp14  # [win and x86_64]
+    # numpy pinning arrives via run_exports from the host numpy build
     - numpy
     - scipy >=1.6
 
@@ -53,13 +52,16 @@ test:
     - test
   imports:
     - ot
+    - ot.lp
+    - ot.partial
+    - ot.bsp
   requires:
     - pip
     - pytest
     - scipy <1.17
   commands:
     - pip check
-    - pytest -v test {{ ignore_tests }} {{ deselect_tests }}
+    - pytest -vv test {{ ignore_tests }} {{ deselect_tests }}
 
 about:
   home: https://github.com/PythonOT/POT
