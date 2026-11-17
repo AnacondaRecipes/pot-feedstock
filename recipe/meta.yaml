@@ -33,7 +33,7 @@ requirements:
     - numpy {{ numpy }}  # [py>=39]
     - llvm-openmp  # [osx or (win and arm64)] analint: host_section_needs_exact_pinnings  # exact pin arrives via run_exports
     - libgomp  # [linux] analint: host_section_needs_exact_pinnings  # exact pin arrives via run_exports
-    - vcomp14  # [win and x86_64] analint: host_section_needs_exact_pinnings  # exact pin arrives via run_exports
+    - vcomp14  # [win and x86_64]
   run:
     - python
     - llvm-openmp  # [osx or (win and arm64)]
