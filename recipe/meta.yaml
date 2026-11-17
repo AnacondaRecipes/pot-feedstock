@@ -6,8 +6,14 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/PythonOT/{{ name|upper }}/archive/refs/tags/{{ version }}.tar.gz
-  sha256: f4fbd61417ad75bd695525e2d6e435e1a74656f0e9243dd2b9b01e87a3eeff74
+  # PyPI sdist, not the GitHub archive: the archive omits the deps/eigen
+  # submodule that the ot.bsp extension needs (Eigen/Dense).
+  - url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+    sha256: 2edd70845047ac2d378487b980a2bffb5ff58e9b92b7133896ff5753f6300cec
+  # The sdist ships test/ flattened and without conftest.py, which provides the
+  # `nx` fixture every test needs; take it from the matching upstream tag.
+  - url: https://raw.githubusercontent.com/PythonOT/POT/{{ version }}/test/conftest.py
+    sha256: ae4c8517928049eaa7db7c6e23792d73628c74f371ccf7e3f0287f21a3cf1189
 
 build:
   number: 0
@@ -27,7 +33,7 @@ requirements:
     - numpy {{ numpy }}  # [py>=39]
     - llvm-openmp  # [osx or (win and arm64)] analint: host_section_needs_exact_pinnings  # exact pin arrives via run_exports
     - libgomp  # [linux] analint: host_section_needs_exact_pinnings  # exact pin arrives via run_exports
-    - vcomp14 {{ vcomp14 }}  # [win and x86_64]
+    - vcomp14  # [win and x86_64] analint: host_section_needs_exact_pinnings  # exact pin arrives via run_exports
   run:
     - python
     - llvm-openmp  # [osx or (win and arm64)]
@@ -50,6 +56,7 @@ requirements:
 test:
   source_files:
     - test
+    - conftest.py
   imports:
     - ot
     - ot.lp
